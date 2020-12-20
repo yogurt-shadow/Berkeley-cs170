@@ -11,6 +11,12 @@ public class complex_number{
 			this.y = y;
 			this.r = Math.sqrt(x * x + y * y);
 			this.theta = Math.atan(y / x);
+			if(theta < 0 && y > 0){
+				theta = theta + Math.PI;
+			}
+			else if(theta > 0 && y < 0){
+				theta = theta - Math.PI;
+			}
 			is_zero = false;
 		}
 
@@ -33,6 +39,13 @@ public class complex_number{
 		else{
 			System.out.println("s should be polar or rect");
 		}
+	}
+
+	public complex_number pow(int x){
+		if(x == 0){
+			return new complex_number(1, 0, "rect");
+		}
+		return times(pow(x - 1));
 	}
 
 	public void print(){
@@ -75,6 +88,7 @@ public class complex_number{
 		double new_y = this.y + r.y;
 		return new complex_number(new_x, new_y, "rect");
 	}
+
 
 	public complex_number conjugate(){
 		if(is_zero){
