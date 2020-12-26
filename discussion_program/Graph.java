@@ -2,6 +2,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Arrays;
 
 public class Graph{
 	private int number;
@@ -153,8 +154,57 @@ public class Graph{
 		return tree_edges;
 	}
 
-	public boolean is_connected(int x, int y){
+	public boolean is_neighbour(int x, int y){
 		return edges[x].contains(y);
+	}
+
+	public boolean is_strong_connected(int x, int y){
+		return is_connected(x, y) && is_connected(y, x);
+	}
+
+	public boolean is_connected(int x, int y){
+		if(x == y){
+			return true;
+		}
+		
+		for(Integer neighbor: neighbors(x)){
+			if(is_connected(neighbor, y)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean is_acyclic(){
+		return back_edges.isEmpty();
+	}
+
+	public int[] Topological_sort(){
+		return descending_order(post_numbers);
+	}
+
+	private int[] descending_order(int[] x){
+		int[] result = new int[x.length];
+		int index = 0;
+
+		int[] copy = new int[x.length];
+		System.arraycopy(x, 0, copy, 0, x.length);
+		Arrays.sort(copy);
+		for(int i = x.length - 1; i >= 0; i--){
+			result[index] = index(x, copy[i]);
+			index += 1;
+		}
+
+		return result;
+	}
+
+	private int index(int[] x, int num){
+		for(int i = 0; i < x.length; i++){
+			if(x[i] == num){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 
