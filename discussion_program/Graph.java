@@ -3,6 +3,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.Queue;
 
 public class Graph{
 	private int number;
@@ -21,6 +22,8 @@ public class Graph{
 	private int index;
 	private boolean[] visited;
 
+	private Queue<Integer> bfs_queue;
+
 
 	public Graph(int n){
 		number = n;
@@ -32,6 +35,7 @@ public class Graph{
 		pre_numbers = new int[n];
 		post_numbers = new int[n];
 		edge_set = new HashSet<>();
+		bfs_queue = new LinkedList<>();
 		refresh();
 	}
 
@@ -132,9 +136,24 @@ public class Graph{
 		dfs();
 	}
 
+	public void add_directed_edge(int x, int y, int length){
+		if(edges[x].contains(y)){
+			return;
+		}
+		edges[x].add(y);
+		edge_set.add(new Edge(x, y, length));
+		dfs();
+	}
+
 	public void add_undirected_edge(int x, int y){
 		add_directed_edge(x, y);
 		add_directed_edge(y, x);
+		dfs();
+	}
+
+	public void add_undirected_edge(int x, int y, int length){
+		add_directed_edge(x, y, length);
+		add_directed_edge(y, x, length);
 		dfs();
 	}
 
@@ -258,6 +277,77 @@ public class Graph{
 		}
 	}
 
+	public int[] bfs(int start){
+		bfs_queue = new LinkedList<>();
+		int[] dist = new int[number];
+		for(int i = 0; i < number; i++){
+			dist[i] = 999999;
+		}
+		dist[start] = 0;
+
+		bfs_queue.offer(start);
+		while(!bfs_queue.isEmpty()){
+			int current = bfs_queue.poll();
+			for(Integer neighbor: neighbors(current)){
+				if(dist[neighbor] == 999999){
+					dist[neighbor] = dist[current] + 1;
+					bfs_queue.offer(neighbor);
+				}
+			}
+		}
+
+		return dist;
+	}
+
+	public int[] weighted_dist_bfs(int start){
+		Graph g_prime = prime();
+		int[] dist = g_prime.bfs(start);
+
+		int[] result = new int[number];
+		System.arraycopy(dist, 0, result, 0, number);
+		return result;
+	}
+
+	public Set<Edge> edge_set(){
+		return edge_set;
+	}
+
+	private Graph prime(){
+		int sum_weighted = 0;
+		int edge_number = 0;
+		for(Edge edge: edge_set){
+			sum_weighted += edge.length();
+			edge_number += 1;
+		}
+		Graph prime  = new Graph(number + sum_weighted - edge_number);
+		int vertex = number;
+		for(Edge edge: edge_set){
+			int start = edge.start();
+			int end = edge.end();
+			if(edge.length() == 1){
+				prime.add_directed_edge(start, end);
+			}
+
+			else{
+				int[] vertices = new int[edge.length() + 1];
+				vertices[0] = start;
+				
+				for(int index = 1; index < edge.length(); index++){
+					vertices[index] = vertex;
+					vertex += 1;
+				}
+
+				vertices[edge.length()] = end;
+
+				for(int i = 0; i < vertices.length - 1; i++){
+					prime.add_directed_edge(vertices[i], vertices[i + 1]);
+				}
+			}
+		}
+
+		return prime;
+	}
+
 
 	public static void main(String[] args){
 		/**
@@ -334,6 +424,7 @@ public class Graph{
 		}
 		 */
 
+/**
 		Graph g = new Graph(12);
 		g.add_directed_edge(0, 1);
 		g.add_directed_edge(1, 2);
@@ -361,7 +452,36 @@ public class Graph{
 
 		System.out.println(g.scc_members(2));
 		System.out.println(g.scc_members(7));
+		*/
 
+/**
+		Graph g = new Graph(5);
+		g.add_undirected_edge(0, 1);
+		g.add_undirected_edge(0, 3);
+		g.add_undirected_edge(1, 2);
+		g.add_undirected_edge(1, 3);
+		g.add_undirected_edge(2, 3);
+		g.add_undirected_edge(3, 4);
+
+		int[] dist = g.bfs(0);
+		for(int i = 0; i < 5; i++){
+			System.out.println(dist[i]);
+		}
+		*/
+
+		Graph g = new Graph(5);
+		g.add_undirected_edge(0, 1, 2);
+		g.add_undirected_edge(0, 3, 3);
+		g.add_undirected_edge(1, 2, 6);
+		g.add_undirected_edge(1, 3, 5);
+		g.add_undirected_edge(3, 4, 4);
+		g.add_undirected_edge(2, 3, 10);
+
+		int[] dist = g.weighted_dist_bfs(0);
+
+		for(int i = 0; i < 5; i++){
+			System.out.println(dist[i]);
+		}
 
 
 	}
