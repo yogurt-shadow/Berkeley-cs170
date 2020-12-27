@@ -207,8 +207,60 @@ public class Graph{
 		return -1;
 	}
 
+	public Graph reverse(){
+		Graph result = new Graph(number);
+		for(Edge edge: edge_set){
+			int start = edge.start();
+			int end = edge.end();
+			result.add_directed_edge(end, start);
+		}
+		return result;
+	}
+
+	public int[] scc(){
+		int scc = 0;
+		int[] result = new int[number];
+		for(int i = 0; i < number; i++){
+			result[i] = 1000;
+		}
+
+		Graph reverse = reverse();
+		int[] order = reverse.Topological_sort();
+		refresh();
+		for(int i = 0; i < number; i++){
+			if(!visited[order[i]]){
+				explore(order[i], result, scc);
+				scc += 1;
+			}
+		}
+		return result;
+	}
+
+	public Set<Integer> scc_members(int x){
+		int[] scc = scc();
+		Set<Integer> result = new HashSet<>();
+		for(int i = 0; i < number; i++){
+			if(scc[x] == scc[i]){
+				result.add(i);
+			}
+		}
+		return result;
+	}
+
+	private void explore(int x, int[] result, int scc){
+		result[x] = scc;
+		visited[x] = true;
+
+		for(Integer neighbor: neighbors(x)){
+			if(!visited[neighbor]){
+				explore(neighbor, result, scc);
+			}
+		}
+	}
+
 
 	public static void main(String[] args){
+		/**
 		Graph g = new Graph(8);
 		
 		g.add_directed_edge(0, 1);
@@ -257,5 +309,60 @@ public class Graph{
 			edge.print();
 		}
 		
+		Graph g2 = new Graph(3);
+		g2.add_directed_edge(0, 1);
+		g2.add_directed_edge(0, 2);
+		g2.add_directed_edge(2, 1);
+		for(int i = 0; i < 3; i++){
+			System.out.println(g2.Topological_sort()[i]);
+		}
+		*/
+
+		/**
+		Graph g = new Graph(6);
+		g.add_directed_edge(0, 1);
+		g.add_directed_edge(1, 2);
+		g.add_directed_edge(2, 3);
+		g.add_directed_edge(3, 4);
+		g.add_directed_edge(4, 2);
+		g.add_directed_edge(2, 5);
+		g.add_directed_edge(5, 4);
+
+		int[] scc = g.scc();
+		for(int i = 0; i < 6; i++){
+			System.out.println(scc[i]);
+		}
+		 */
+
+		Graph g = new Graph(12);
+		g.add_directed_edge(0, 1);
+		g.add_directed_edge(1, 2);
+		g.add_directed_edge(1, 3);
+		g.add_undirected_edge(1, 4);
+		g.add_undirected_edge(2, 5);
+		g.add_directed_edge(4, 5);
+		g.add_directed_edge(4, 6);
+		g.add_directed_edge(5, 7);
+		g.add_directed_edge(6, 7);
+		g.add_directed_edge(8, 6);
+		g.add_directed_edge(9, 8);
+		g.add_directed_edge(11, 9);
+		g.add_directed_edge(6, 9);
+		g.add_directed_edge(10, 11);
+		g.add_directed_edge(7, 10);
+
+
+		int[] scc = g.scc();
+		for(int i = 0; i < 12; i++){
+			System.out.println(scc[i]);
+		}
+
+		System.out.println();
+
+		System.out.println(g.scc_members(2));
+		System.out.println(g.scc_members(7));
+
+
+
 	}
 }
