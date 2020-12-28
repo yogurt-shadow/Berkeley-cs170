@@ -277,6 +277,7 @@ public class Graph{
 		}
 	}
 
+
 	public int[] bfs(int start){
 		bfs_queue = new LinkedList<>();
 		int[] dist = new int[number];
@@ -469,19 +470,36 @@ public class Graph{
 		}
 		*/
 
-		Graph g = new Graph(5);
-		g.add_undirected_edge(0, 1, 2);
-		g.add_undirected_edge(0, 3, 3);
-		g.add_undirected_edge(1, 2, 6);
-		g.add_undirected_edge(1, 3, 5);
-		g.add_undirected_edge(3, 4, 4);
-		g.add_undirected_edge(2, 3, 10);
+	Graph g = new Graph(10);
+	g.add_directed_edge(0, 1);
+	g.add_directed_edge(0, 4);
+	g.add_directed_edge(2, 0);
+	g.add_directed_edge(7, 0);
+	g.add_directed_edge(6, 1);
+	g.add_directed_edge(8, 4);
+	g.add_directed_edge(7, 8);
+	g.add_directed_edge(6, 7);
+	g.add_directed_edge(5, 7);
+	g.add_directed_edge(5, 3);
+	g.add_directed_edge(9, 5);
+	g.add_directed_edge(2, 9);
+	g.add_directed_edge(3, 2);
+	g.add_directed_edge(8, 6);
 
-		int[] dist = g.weighted_dist_bfs(0);
+	int[] pre = g.pre_numbers();
+	int[] post = g.post_numbers();
 
-		for(int i = 0; i < 5; i++){
-			System.out.println(dist[i]);
-		}
+	for(int i = 0; i < 10; i++){
+		System.out.println(i + ": " + pre[i] + " , " + post[i]);
+	}
+
+	System.out.println();
+	int[] scc = g.scc();
+	for(int i = 0; i < 10; i++){
+		System.out.println(scc[i]);
+	}
+
+
 
 
 	}
