@@ -4,6 +4,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Queue;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class Graph{
 	private int number;
@@ -24,6 +26,8 @@ public class Graph{
 
 	private Queue<Integer> bfs_queue;
 
+	private int[] dist;
+
 
 	public Graph(int n){
 		number = n;
@@ -36,6 +40,7 @@ public class Graph{
 		post_numbers = new int[n];
 		edge_set = new HashSet<>();
 		bfs_queue = new LinkedList<>();
+		dist = new int[n];
 		refresh();
 	}
 
@@ -349,6 +354,75 @@ public class Graph{
 		return prime;
 	}
 
+	private int length(int x, int y){
+		if(y == x){
+			return 0;
+		}
+
+		else{
+			for(Edge edge: edge_set){
+				if(edge.start() == x && edge.end() == y){
+					return edge.length();
+				}
+			}
+			return Integer.MAX_VALUE;
+		}
+	}
+
+	public int[] dijkstra(int start){
+		for(int i = 0; i < number; i++){
+			dist[i] = Integer.MAX_VALUE;
+		}
+		dist[start] = 0;
+		Comparator<Integer> cmp = new Comparator<>(){
+			public int compare(Integer x, Integer y){
+				return dist[x] - dist[y];
+			} 
+		};
+
+		Queue<Integer> pq = new PriorityQueue<>(cmp);
+		for(int i = 0; i < number; i++){
+			pq.add(i);
+		}
+
+		while(!pq.isEmpty()){
+			int cur = pq.poll();
+			for(Integer neighbor: neighbors(cur)){
+				if(dist[neighbor] > dist[cur] + length(cur, neighbor)){
+					dist[neighbor] = dist[cur] + length(cur, neighbor);
+					pq.remove(neighbor);
+					pq.add(neighbor);
+				}
+			}
+		}
+
+		return dist;
+
+	}
+
+	private void relax(Edge edge){
+		int end = edge.end();
+		int start = edge.start();
+		if(dist[end] > dist[start] + edge.length()){
+			dist[end] = dist[start] + edge.length();
+		}
+	}
+
+	public int[] bellman_ford(int start){
+		for(int i = 0; i < number; i++){
+			dist[i] = 10000;
+		}
+		dist[start] = 0;
+		for(int i = 0; i < number - 1; i++){
+			for(Edge edge: edge_set){
+				relax(edge);
+			}
+		}
+
+		return dist;
+	}
+
+
 
 	public static void main(String[] args){
 		/**
@@ -470,6 +544,8 @@ public class Graph{
 		}
 		*/
 
+		/**
+
 	Graph g = new Graph(10);
 	g.add_directed_edge(0, 1);
 	g.add_directed_edge(0, 4);
@@ -498,9 +574,81 @@ public class Graph{
 	for(int i = 0; i < 10; i++){
 		System.out.println(scc[i]);
 	}
+	*/
 
+	/**
+	int[] xxyy = new int[]{1, 5, 3, 4, 2, -1};
+	Comparator<Integer> cmp = new Comparator<Integer>(){
+		public int compare(Integer x, Integer y){
+			return xxyy[x] - xxyy[y];
+		}
+	};
 
+	Queue<Integer> pq = new PriorityQueue<>(cmp);
 
+	pq.add(1);
+	pq.add(4);
+	pq.add(3);
+	System.out.println(pq.peek());
 
+	System.out.println(pq.peek());
+	xxyy[4] = 1000;
+	pq.remove(4);
+	pq.add(4);
+	System.out.println(pq.peek());
+	*/
+
+	/**
+	Graph g = new Graph(5);
+	g.add_directed_edge(0, 1, 4);
+	g.add_directed_edge(0, 2, 2);
+	g.add_directed_edge(1, 2, 3);
+	g.add_directed_edge(2, 1, 1);
+	g.add_directed_edge(1, 3, 2);
+	g.add_directed_edge(1, 4, 3);
+	g.add_directed_edge(2, 3, 4);
+	g.add_directed_edge(2, 4, 5);
+	g.add_directed_edge(4, 3, 1);
+
+	int[] dist = g.dijkstra(0);
+	for(int i = 0; i < dist.length; i++){
+		System.out.println(dist[i]);
+	}
+	*/
+	/**
+	Graph g = new Graph(5);
+	g.add_directed_edge(0, 1, 4);
+	g.add_directed_edge(0, 2, 2);
+	g.add_directed_edge(1, 2, 3);
+	g.add_directed_edge(2, 1, 1);
+	g.add_directed_edge(1, 3, 2);
+	g.add_directed_edge(1, 4, 3);
+	g.add_directed_edge(2, 3, 4);
+	g.add_directed_edge(2, 4, 5);
+	g.add_directed_edge(4, 3, 1);
+
+	int[] dist1 = g.bellman_ford(0);
+	for(int i = 0; i < dist1.length; i++){
+		System.out.println(dist1[i]);
+	}
+	 */
+
+	Graph g = new Graph(8);
+	g.add_directed_edge(0, 1, 10);
+	g.add_directed_edge(0, 7, 8);
+	g.add_directed_edge(2, 1, 1);
+	g.add_directed_edge(2, 3, 1);
+	g.add_directed_edge(3, 4, 3);
+	g.add_directed_edge(4, 5, -1);
+	g.add_directed_edge(6, 5, -1);
+	g.add_directed_edge(7, 6, 1);
+	g.add_directed_edge(6, 1, -4);
+	g.add_directed_edge(1, 5, 2);
+	g.add_directed_edge(5, 2, -2);
+
+	int[] dist2 = g.bellman_ford(0);
+	for(int i = 0; i < 8; i++){
+		System.out.println(dist2[i]);
+	}
 	}
 }
